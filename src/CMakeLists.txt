@@ -12,3 +12,18 @@ set_target_properties(${PROJECT_NAME}
 					  CXX_STANDARD_REQUIRED YES
 					  CXX_EXTENSIONS NO
 )
+
+target_include_directories(${PROJECT_NAME}
+						   PUBLIC $ENV{VULKAN_SDK}/include/
+						   PUBLIC ../vendor/glfw/include/
+)
+
+target_link_directories(${PROJECT_NAME}
+						PRIVATE ../vendor/glfw/src
+)
+
+target_link_libraries(${PROJECT_NAME}
+					  glfw
+					  ${Vulkan_LIBRARY}
+)
+
