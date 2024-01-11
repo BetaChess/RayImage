@@ -46,11 +46,39 @@ public:
 	
 	///// Getters
 	
-	VkCommandPool getCommandPool() { return commandPool_; }
-	VkDevice device() { return device_; }
-	VkSurfaceKHR surface() { return surface_; }
-	VkQueue graphicsQueue() { return graphicsQueue_; }
-	VkQueue presentQueue() { return presentQueue_; }
+	VkCommandPool getCommandPool()
+	{ return commandPool_; }
+	
+	VkDevice device()
+	{ return device_; }
+	
+	VkSurfaceKHR surface()
+	{ return surface_; }
+	
+	VkQueue graphicsQueue()
+	{ return graphicsQueue_; }
+	
+	VkQueue presentQueue()
+	{ return presentQueue_; }
+	
+	///// Public methods
+	
+	inline SwapChainSupportDetails getSwapChainSupport()
+	{ return query_swap_chain_support(physicalDevice_); }
+	
+	inline QueueFamilyIndices findPhysicalQueueFamilies()
+	{ return find_queue_families(physicalDevice_); }
+	
+	VkFormat
+	findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+	
+	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+	
+	void createImageWithInfo(
+			const VkImageCreateInfo &imageInfo,
+			VkMemoryPropertyFlags properties,
+			VkImage &image,
+			VkDeviceMemory &imageMemory);
 
 private:
 #ifdef NDEBUG

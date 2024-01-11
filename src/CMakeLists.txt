@@ -14,6 +14,10 @@ set(SOURCES
 	vulkan/device.hpp
 	application.hpp
 	application.cpp
+	vulkan/renderer.hpp
+	vulkan/renderer.cpp
+	vulkan/swapchain.hpp
+	vulkan/swapchain.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})

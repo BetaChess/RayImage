@@ -626,4 +626,81 @@ void Device::create_command_pool()
 	}
 }
 
+VkFormat Device::findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling,
+									 VkFormatFeatureFlags features)
+{
+	for (VkFormat format : candidates)
+	{
+		VkFormatProperties props;
+		vkGetPhysicalDeviceFormatProperties(physicalDevice_, format, &props);
+		
+		if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features)
+		{
+			return format;
+		}
+		else if (
+				tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features)
+		{
+			return format;
+		}
+	}
+	AITO_ERROR("Failed to find supported format");
+	throw std::runtime_error("failed to find supported format!");
+}
+
+void Device::createImageWithInfo(const VkImageCreateInfo &imageInfo, VkMemoryPropertyFlags properties, VkImage &image,
+								 VkDeviceMemory &imageMemory)
+{
+	if (vkCreateImage(device_, &imageInfo, nullptr, &image) != VK_SUCCESS)
+	{
+		throw std::runtime_error("failed to create image!");
+	}
+	
+	// Get the memory requirements.
+	VkMemoryRequirements memRequirements;
+	vkGetImageMemoryRequirements(device_, image, &memRequirements);
+	
+	// Create the memory allocation info and populate it.
+	VkMemoryAllocateInfo allocInfo{};
+	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	allocInfo.allocationSize = memRequirements.size;
+	// Get the index of the memory.
+	allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
+	
+	// Attempt to allocate the memory.
+	if (vkAllocateMemory(device_, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
+	{
+		AITO_FATAL("Failed to allocate image memory");
+		throw std::runtime_error("failed to allocate image memory!");
+	}
+	// Attempt to bind the memory to the image.
+	if (vkBindImageMemory(device_, image, imageMemory, 0) != VK_SUCCESS)
+	{
+		throw std::runtime_error("failed to bind image memory!");
+	}
+}
+
+uint32_t Device::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+{
+	// Get the memory properties of the physical device
+	VkPhysicalDeviceMemoryProperties memProperties;
+	vkGetPhysicalDeviceMemoryProperties(physicalDevice_, &memProperties);
+	
+	// Iterate through the memory types retrieved
+	for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
+	{
+		// If the typefilter matches and the memory type has the correct properties (set by flags), return the index to the memory type.
+		if (
+				(typeFilter & (1 << i)) &&
+				(memProperties.memoryTypes[i].propertyFlags & properties) == properties
+				)
+		{
+			return i;
+		}
+	}
+	
+	AITO_ERROR("Failed to find suitable memory type");
+	throw std::runtime_error("failed to find suitable memory type!");
+}
+	
 }

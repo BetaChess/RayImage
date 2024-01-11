@@ -30,8 +30,12 @@ public:
 	~Window();
 	
 	///// Public methods
-	
 	void create_window_surface(VkInstance instance, VkSurfaceKHR *surface);
+	[[nodiscard]] inline VkExtent2D get_extent() const { return {static_cast<uint32_t>(width_), static_cast<uint32_t>(height_) }; }
+	inline bool shouldClose() { return glfwWindowShouldClose(window_); };
+	[[nodiscard]] inline bool wasWindowResized() const { return frameBufferResized_; };
+	inline void resetWindowResizedFlag() { frameBufferResized_ = false; };
+	
 	
 	[[nodiscard]] inline GLFWwindow *get_glfw_window() const
 	{ return window_; };
