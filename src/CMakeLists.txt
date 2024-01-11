@@ -10,6 +10,10 @@ set(SOURCES
 	core/logger.cpp
 	vulkan/window.cpp
 	vulkan/window.hpp
+	vulkan/device.cpp
+	vulkan/device.hpp
+	application.hpp
+	application.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})

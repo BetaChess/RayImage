@@ -1,6 +1,6 @@
 #pragma once
 // Set the logger to log all, so aito can decide what to log itself.
-#define SPDLOG_ACTIVE_LEVEL 1
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE 
 
 
 #include <memory>
