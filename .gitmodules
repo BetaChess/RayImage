@@ -1,0 +1,3 @@
+[submodule "vendor/FlowForge"]
+	path = vendor/FlowForge
+	url = https://github.com/BetaChess/FlowForge
