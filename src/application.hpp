@@ -1,8 +1,12 @@
 #pragma once
 
+#include "renderer.hpp"
+
+
 #include <flowforge.hpp>
-#include <vulkan/shader/default/material_shader.hpp>
+#include <vulkan/resource/mutable_texture.hpp>
 #include <vulkan/shader/default/imgui_shader.hpp>
+#include <vulkan/shader/default/material_shader.hpp>
 
 namespace rayimage
 {
@@ -14,6 +18,8 @@ public:
 	~Application();
 
 	void run();
+
+	void update_texture();
 
 private:
 	uint32_t width_, height_;
@@ -31,6 +37,11 @@ private:
 	// id of the object (in the material shader) to render the drawn texture to.
 	uint32_t object_id_ = flwfrg::vk::constant::invalid_id;
 	flwfrg::vk::shader::GeometryRenderData object_data_{};
+
+	flwfrg::vk::MutableTexture texture_{};
+	std::vector<uint8_t> image_data_{};
+
+	Renderer ray_renderer_;
 };
 
 }

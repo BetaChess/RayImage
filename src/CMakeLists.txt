@@ -5,6 +5,9 @@ set(SOURCES
         main.cpp
         application.hpp
         application.cpp
+        renderer.hpp
+        renderer.cpp
+        math/spectrum.hpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})

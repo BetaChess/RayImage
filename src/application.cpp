@@ -3,7 +3,7 @@
 #include "application.hpp"
 
 rayimage::Application::Application(uint32_t width, uint32_t height)
-	: width_(width), height_(height_),
+	: width_(width), height_(height),
 	  renderer_(width, height, "RayImage"),
 	  im_gui_shader_(&renderer_.get_display_context()),
 	  material_shader_(&renderer_.get_display_context()),
@@ -14,7 +14,8 @@ rayimage::Application::Application(uint32_t width, uint32_t height)
 	  index_buffer_(&renderer_.get_display_context().get_device(),
 					sizeof(uint32_t) * indices_.size(),
 					static_cast<VkBufferUsageFlagBits>(VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT),
-					VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, false)
+					VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, false),
+	  ray_renderer_(width, height)
 {
 	vertices_[0].position = glm::vec3{-1, 1, 0};
 	vertices_[0].texture_coordinate = glm::vec2{0.0f, 0.0f};
@@ -49,7 +50,21 @@ rayimage::Application::Application(uint32_t width, uint32_t height)
 			renderer_.get_display_context().get_device().get_graphics_queue());
 
 	object_id_ = material_shader_.acquire_resources();
-	object_data_.textures[0] = material_shader_.get_default_texture();
+	auto maybe_texture = flwfrg::vk::MutableTexture::create_mutable_texture(
+			&renderer_.get_display_context().get_device(),
+			0, width, height, 4);
+	if (maybe_texture.has_value())
+	{
+		texture_ = std::move(maybe_texture.value());
+		object_data_.textures[0] = &texture_;
+	} else
+	{
+		object_data_.textures[0] = material_shader_.get_default_texture();
+	}
+
+	image_data_.resize(width_ * height_ * 4);
+	std::ranges::fill(image_data_, 255);
+	texture_.update_texture(image_data_, 0);
 }
 
 rayimage::Application::~Application()
@@ -92,5 +107,23 @@ void rayimage::Application::run()
 		im_gui_shader_.end_frame(*frame_data.value());
 
 		renderer_.end_frame();
+
+		ray_renderer_.render();
+		update_texture();
 	}
+}
+
+void rayimage::Application::update_texture()
+{
+	auto& new_data = ray_renderer_.get_image();
+
+	size_t j = 0;
+	for (size_t i = 0; i < image_data_.size(); i += 4, ++j)
+	{
+		image_data_[i + 0] = static_cast<uint8_t>(255.0f * std::clamp(new_data[j][0], 0.f, 1.f));
+		image_data_[i + 1] = static_cast<uint8_t>(255.0f * std::clamp(new_data[j][1], 0.f, 1.f));
+		image_data_[i + 2] = static_cast<uint8_t>(255.0f * std::clamp(new_data[j][2], 0.f, 1.f));
+	}
+
+	texture_.update_texture(image_data_, 0);
 }
