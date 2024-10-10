@@ -20,13 +20,20 @@ set_target_properties(${PROJECT_NAME}
 )
 
 target_include_directories(${PROJECT_NAME}
-        PUBLIC ../vendor/FlowForge/src
+        PUBLIC ${FLOWFORGELIB_PATH}/src
 )
 
 target_link_directories(${PROJECT_NAME}
-        PRIVATE ../vendor/FlowForge
+        PRIVATE ${FLOWFORGELIB_PATH}
 )
 
 target_link_libraries(${PROJECT_NAME}
         flowforge_lib
 )
+
+add_shaders(${PROJECT_NAME}_shaders
+        ${FLOWFORGELIB_PATH}/assets/shaders/default_material_shader.vert
+        ${FLOWFORGELIB_PATH}/assets/shaders/default_material_shader.frag
+)
+
+add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_shaders)
